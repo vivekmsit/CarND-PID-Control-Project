@@ -57,11 +57,8 @@ class PID {
   double totalSteps_;
   double dpSumLimit_;
   bool stepComplete_;
-  bool incr_p_with_dp_done_;
-  bool post_not_best_err_done_;
-  bool iterationComplete_;
   bool calibrationDone_;
-  int checkNumber_;
+  int twiddleStep_;
 };
 
 #endif  // PID_H

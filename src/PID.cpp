@@ -13,23 +13,20 @@ void PID::Init(double Kp, double Ki, double Kd) {
   Kp_ = Kp;
   Ki_ = Ki;
   Kd_ = Kd;
-  p_ = {Kp_,Ki_,Kd_};
+  //p_ = {Kp_,Ki_,Kd_};
+  p_ = {0,0,0};
   dp_ = {1,1,1};
   dpSumLimit_ = 0.001;
   currentIndex_ = 0;
-  checkNumber_ = 0;
+  twiddleStep_ = 0;
   p_error_ = i_error_ = d_error_ = 0;
   bestError_ = std::numeric_limits<double>::max();
   currentStep_ = 0;
-  stepComplete_ = false;
   calibrationDone_ = false;
-  incr_p_with_dp_done_ = false;
-  post_not_best_err_done_ = false;
-  iterationComplete_ = false;
 }
 
 void PID::UpdateError(double cte) {
-  d_error_ = p_error_ - cte;
+  d_error_ = cte - p_error_;
   p_error_ = cte;
   i_error_ += cte;
   double dpSum = dp_[0] + dp_[1] + dp_[2];
@@ -44,7 +41,7 @@ void PID::UpdateError(double cte) {
   
   if ((dpSum > dpSumLimit_ && !calibrationDone_) || (currentStep_ < 500)) {
     std::cout<<"dpSum is: " << dpSum << ", currentStep is: "<<currentStep_<<std::endl;
-    if (checkNumber_ == 0) {
+    if (twiddleStep_ == 0) {
       if (cte < bestError_) {
         std::cout<<"checkNumber_ 0, if case"<<std::endl;
         bestError_ = cte;
@@ -52,7 +49,7 @@ void PID::UpdateError(double cte) {
       } else {
         std::cout<<"checkNumber_ 0, else case"<<std::endl;
         p_[currentIndex_] -= 2 * dp_[currentIndex_];
-        checkNumber_ = !checkNumber_;
+        twiddleStep_ = 1;
       }
     } else {
       if (cte < bestError_) {
@@ -64,7 +61,7 @@ void PID::UpdateError(double cte) {
         p_[currentIndex_] += dp_[currentIndex_];
         dp_[currentIndex_] *= 0.9;
       }
-      checkNumber_ = !checkNumber_;
+      twiddleStep_ = 0;
     }
     
     // End of iteration
