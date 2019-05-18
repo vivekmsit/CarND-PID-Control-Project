@@ -1,8 +1,6 @@
 #ifndef PID_H
 #define PID_H
 
-#include <vector>
-
 class PID {
  public:
   /**
@@ -19,7 +17,7 @@ class PID {
    * Initialize PID.
    * @param (Kp_, Ki_, Kd_) The initial PID coefficients
    */
-  void Init(double Kp, double Ki, double Kd);
+  void Init(double Kp_, double Ki_, double Kd_);
 
   /**
    * Update the PID error variables given cross track error.
@@ -33,6 +31,8 @@ class PID {
    */
   double TotalError();
 
+  void Twiddler(int index, double value);
+
  private:
   /**
    * PID Errors
@@ -43,22 +43,27 @@ class PID {
 
   /**
    * PID Coefficients
-   */ 
+   */
   double Kp_;
   double Ki_;
   double Kd_;
-  
-  // twiddle variables
+
+
+  //Current step
+  int stepNumber_;
+
+  //Total steps per cycle, 'n' steps
+  int numSteps_;
+
+  /**
+   * Twiddle variables
+   */
   double bestError_;
-  std::vector<double> p_;
-  std::vector<double> dp_;
-  double currentIndex_;
-  double currentStep_;
-  double totalSteps_;
-  double dpSumLimit_;
-  bool stepComplete_;
-  bool calibrationDone_;
-  int twiddleStep_;
+  double totalError_;
+  int currentIndex_;
+  bool addRequired_;
+  bool subRequired_;
+  double p_[3];
 };
 
 #endif  // PID_H
